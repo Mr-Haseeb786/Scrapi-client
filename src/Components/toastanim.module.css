@@ -1,0 +1,31 @@
+.toastAnimationStart {
+  animation: startAnim;
+  animation-duration: 200ms;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+}
+
+.toastEndAnimation {
+  animation: endAnim;
+  animation-duration: 250ms;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in;
+}
+
+@keyframes startAnim {
+  from {
+    transform: translate(-50%, -224px);
+  }
+  to {
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes endAnim {
+  from {
+    transform: translate(-50%, 0);
+  }
+  to {
+    transform: translate(-50%, -224px);
+  }
+}

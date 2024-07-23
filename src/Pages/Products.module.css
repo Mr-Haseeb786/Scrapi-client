@@ -1,0 +1,26 @@
+.getInfoSection {
+  display: grid;
+  grid-template-areas:
+    "a b"
+    "c c"
+    "d d";
+  gap: 1.5rem;
+  place-items: center;
+}
+
+.searchInputField {
+  grid-area: a;
+}
+
+.priceLimits {
+  grid-area: b;
+  justify-self: center;
+}
+
+.siteChoiceHeading {
+  grid-area: c;
+}
+
+.sitesToScrap {
+  grid-area: d;
+}
