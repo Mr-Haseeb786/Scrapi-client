@@ -17,7 +17,7 @@ function App() {
       <div className=''>
         <Routes>
           <Route path='/' element={<ProductsPage />} />
-          <Route path='/login' element={<Login />} />
+          <Route path='/signup' element={<Login />} />
           <Route path='/signin' element={<Signin />} />
           <Route element={<ProtectedRoutes />}>
             <Route path={"/user/favourites"} element={<FavouritesPage />} />

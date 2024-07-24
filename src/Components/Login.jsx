@@ -23,6 +23,8 @@ const Login = () => {
   const [emailError, setemailError] = useState(false);
   const [passwordsNotMatch, setPasswordsNotMatch] = useState(false);
 
+  const [errorMsg, setErrorMsg] = useState("");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -47,15 +49,37 @@ const Login = () => {
     }
 
     // db query to verify username and email
-
-    if (!userName) return setUserNameExistsError(true);
     if (userName.length < 5) return setUserNameError(true);
-    if (!email) return setemailError(true);
     if (password.length < 8) return setPasswordError(true);
     if (password != confPassword) {
       passwordLabel.current.classList.add("input-error");
       confPasswordLabel.current.classList.add("input-error");
       return setPasswordsNotMatch(true);
+    }
+
+    // if (!userName) return setUserNameExistsError(true);
+    // if (!email) return setemailError(true);
+
+    try {
+      const response = await fetch("api/v1/user", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: userName,
+          password,
+          email,
+        }),
+      });
+
+      const user = await response.json();
+
+      if (!response.ok) console.log(user.error);
+
+      console.log(user);
+    } catch (error) {
+      console.log("There was an error ", error);
     }
   };
 
@@ -64,6 +88,7 @@ const Login = () => {
       {error && (
         <Toast category={"error"} msg={"Missing Fields"} resetFunc={setError} />
       )}
+      {/* {errorMsg && <Toast category={"error"} msg={errorMsg} resetFunc={} />} */}
       {userNameError && (
         <Toast
           category={"error"}
@@ -78,13 +103,13 @@ const Login = () => {
           resetFunc={setPasswordError}
         />
       )}
-      {userNameExistsError && (
+      {/* {userNameExistsError && (
         <Toast
           category={"error"}
           msg={"Username already exists"}
           resetFunc={setUserNameExistsError}
         />
-      )}
+      )} */}
       {emailError && (
         <Toast
           category={"error"}

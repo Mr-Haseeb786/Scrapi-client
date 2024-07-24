@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import Toast from "./ErrorToast";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../Context/UserContext";
 
 const Signin = () => {
@@ -46,6 +46,29 @@ const Signin = () => {
     if (!email || !password) {
       setMissingFields(true);
       return;
+    }
+
+    try {
+      console.log("Ran");
+      const response = await fetch("api/v1/user/signin", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const user = await response.json();
+
+      if (response.status === 401) {
+        setIncorrectCreds(true);
+      }
+      console.log(user);
+    } catch (error) {
+      console.log("There Was an error ", error);
     }
 
     // db query
@@ -146,9 +169,9 @@ const Signin = () => {
             Login
           </button>
           <p className='text-white text-center'>Or</p>
-          <button className='btn' type='button'>
+          <Link to={"/signup"} className='btn'>
             Create an Account
-          </button>
+          </Link>
           <button type='button' className='btn' onClick={handleLoginWithGoogle}>
             Continue With Google
           </button>
