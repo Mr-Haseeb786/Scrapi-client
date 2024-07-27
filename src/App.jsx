@@ -7,9 +7,14 @@ import FavouritesPage from "./Pages/FavouritesPage";
 import Login from "./Components/Login";
 import Signin from "./Components/Signin";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
+import useUserValidation from "./CustomHooks/useUserValidation";
 
 function App() {
-  const { user, isAuthenticated } = useAuth0();
+  const { isAuthenticated } = useAuth0();
+
+  const { isLoading } = useUserValidation();
+
+  console.log(isLoading);
 
   return (
     <main>
@@ -19,6 +24,7 @@ function App() {
           <Route path='/' element={<ProductsPage />} />
           <Route path='/signup' element={<Login />} />
           <Route path='/signin' element={<Signin />} />
+          <Route path='/testing' element={<h2>Hey</h2>} />
           <Route element={<ProtectedRoutes />}>
             <Route path={"/user/favourites"} element={<FavouritesPage />} />
           </Route>

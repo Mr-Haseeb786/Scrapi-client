@@ -16,13 +16,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [confPassword, setConfPassword] = useState("");
 
-  const [error, setError] = useState(false);
-  const [userNameError, setUserNameError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
-  const [userNameExistsError, setUserNameExistsError] = useState(false);
-  const [emailError, setemailError] = useState(false);
-  const [passwordsNotMatch, setPasswordsNotMatch] = useState(false);
-
   const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = async (e) => {
@@ -31,7 +24,7 @@ const Login = () => {
     console.log("submitted");
 
     if (!userName || !email || !password || !confPassword) {
-      setError(true);
+      setErrorMsg("Please fill in all fields");
 
       if (!userName) userNameLabel.current.classList.add("input-error");
       else userNameLabel.current.classList.remove("input-error");
@@ -49,16 +42,15 @@ const Login = () => {
     }
 
     // db query to verify username and email
-    if (userName.length < 5) return setUserNameError(true);
-    if (password.length < 8) return setPasswordError(true);
+    if (userName.length < 5)
+      return setErrorMsg("UserName should contain minimum 5 characters");
+    if (password.length < 8)
+      return setErrorMsg("Password should contain minimum 8 characters");
     if (password != confPassword) {
       passwordLabel.current.classList.add("input-error");
       confPasswordLabel.current.classList.add("input-error");
-      return setPasswordsNotMatch(true);
+      return setErrorMsg("Passwords do not match");
     }
-
-    // if (!userName) return setUserNameExistsError(true);
-    // if (!email) return setemailError(true);
 
     try {
       const response = await fetch("api/v1/user", {
@@ -73,11 +65,11 @@ const Login = () => {
         }),
       });
 
-      const user = await response.json();
+      const resp = await response.json();
 
-      if (!response.ok) console.log(user.error);
+      if (!response.ok) setErrorMsg(resp.error);
 
-      console.log(user);
+      console.log(resp);
     } catch (error) {
       console.log("There was an error ", error);
     }
@@ -85,44 +77,8 @@ const Login = () => {
 
   return (
     <section className='section-center'>
-      {error && (
-        <Toast category={"error"} msg={"Missing Fields"} resetFunc={setError} />
-      )}
-      {/* {errorMsg && <Toast category={"error"} msg={errorMsg} resetFunc={} />} */}
-      {userNameError && (
-        <Toast
-          category={"error"}
-          msg={"UserName should contain minimum 5 characters"}
-          resetFunc={setUserNameError}
-        />
-      )}
-      {passwordError && (
-        <Toast
-          category={"error"}
-          msg={"Password should contain minimum 8 characters"}
-          resetFunc={setPasswordError}
-        />
-      )}
-      {/* {userNameExistsError && (
-        <Toast
-          category={"error"}
-          msg={"Username already exists"}
-          resetFunc={setUserNameExistsError}
-        />
-      )} */}
-      {emailError && (
-        <Toast
-          category={"error"}
-          msg={"Email Already Exists"}
-          resetFunc={setemailError}
-        />
-      )}
-      {passwordsNotMatch && (
-        <Toast
-          msg={"Passwords do not match"}
-          category={"error"}
-          resetFunc={setPasswordsNotMatch}
-        />
+      {errorMsg && (
+        <Toast category={"error"} msg={errorMsg} resetFunc={setErrorMsg} />
       )}
       <article className='mb-12 mt-8'>
         <h2 className='text-2xl font-bold text-center mb-8'>

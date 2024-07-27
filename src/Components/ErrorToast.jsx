@@ -11,7 +11,7 @@ const Toast = ({ msg, category, resetFunc }) => {
     }, 2700);
 
     setTimeout(() => {
-      return resetFunc(false);
+      return resetFunc("");
     }, 3000);
   }, []);
 

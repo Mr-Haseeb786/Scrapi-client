@@ -3,31 +3,54 @@ import Toast from "./ErrorToast";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../Context/UserContext";
+import {
+  registerUserWithGoogle,
+  signInUserWithGoogle,
+} from "../utils/signInWithGoogleHandlers";
 
 const Signin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [missingFileds, setMissingFields] = useState(false);
-  const [incorrectCred, setIncorrectCreds] = useState(false);
+  const [error, setError] = useState("");
 
-  const { loginWithPopup, isAuthenticated, user: userInfoAuth0 } = useAuth0();
+  const {
+    loginWithPopup,
+    isAuthenticated,
+    user: userInfoAuth0,
+    logout,
+  } = useAuth0();
   const { user, setUser } = useContext(UserContext);
 
   let navigate = useNavigate();
 
   useEffect(() => {
-    if (userInfoAuth0 && isAuthenticated) {
-      // db query to check if user exists
-      // setUser({...userInfoFromDB})
-      console.log("Redirecting User if already exists");
-      navigate("/");
+    const logInUser = async () => {
+      if (userInfoAuth0 && isAuthenticated) {
+        // db query to check if user exists
+        const { given_name, email, sub } = userInfoAuth0;
+        const credId = sub.split("|")[1];
 
-      // db query to insert user if user does not exist
-      console.log("Redirecting after Insertion");
-      return;
-    }
-    console.log("Use effect run");
+        const status = await signInUserWithGoogle();
+
+        if (status === 401) {
+          registerUserWithGoogle(
+            given_name,
+            email,
+            credId,
+            true,
+            logout,
+            setError
+          );
+          const status = await signInUserWithGoogle();
+          if (status != 200) {
+            return console.log("Mehrbani ustad");
+          }
+        }
+      }
+    };
+
+    logInUser();
   }, [userInfoAuth0, isAuthenticated]);
 
   const handleLoginWithGoogle = async () => {
@@ -36,20 +59,18 @@ const Signin = () => {
 
       // if (isAuthenticated) console.log(user);
     } catch (error) {}
-
     // console.log("Inserting in Database");
     // console.log(user);
   };
 
-  const handleLoginSubmit = async (e) => {
+  const handleSimpleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      setMissingFields(true);
+      setError("Please fill all fields");
       return;
     }
 
     try {
-      console.log("Ran");
       const response = await fetch("api/v1/user/signin", {
         method: "post",
         headers: {
@@ -58,48 +79,37 @@ const Signin = () => {
         body: JSON.stringify({
           email,
           password,
+          signedInWithGoogle: false,
         }),
       });
 
-      const user = await response.json();
-
-      if (response.status === 401) {
-        setIncorrectCreds(true);
+      const resp = await response.json();
+      if (!response.ok) {
+        setError(resp.error);
+        return;
       }
-      console.log(user);
+
+      const { userInfo } = resp;
+
+      setUser({
+        ...user,
+        userId: userInfo.userId,
+        username: userInfo.username,
+        isAuthentic: true,
+      });
+
+      navigate("/");
     } catch (error) {
       console.log("There Was an error ", error);
     }
-
-    // db query
-    if (!email) {
-      setIncorrectCreds(true);
-      return;
-    }
-
-    // setUser({userId: db.userId, userName: db.userName, ... })
-    // navigate("/")
   };
   return (
     <section className='section-center'>
-      {missingFileds && (
-        <Toast
-          msg={"Please fill al Fields"}
-          category={"error"}
-          resetFunc={setMissingFields}
-        />
-      )}
-      {incorrectCred && (
-        <Toast
-          msg={"Incorrect Email or Password"}
-          category={"error"}
-          resetFunc={setIncorrectCreds}
-        />
-      )}
+      {error && <Toast msg={error} category={"error"} resetFunc={setError} />}
       <article className='mt-8 mb-12 mx-auto'>
         <h2 className='text-2xl font-bold text-center mb-8'>Login</h2>
         <form
-          onSubmit={handleLoginSubmit}
+          onSubmit={handleSimpleLogin}
           className='max-w-xs flex flex-col gap-4 bg-neutral py-12 px-6 rounded-md mx-auto'
         >
           <label className='input input-bordered flex items-center gap-2'>

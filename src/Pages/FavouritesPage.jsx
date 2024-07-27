@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import ProductsResult from "../Components/ProductsResult";
+import useUserValidation from "../CustomHooks/useUserValidation";
 
 const FavouritesPage = () => {
+  // const { user } = useUserValidation();
+  console.log("fav page");
+  // console.log(user);
+  console.log("end fav page");
+
   const [products, setProducts] = useState([]);
   return (
     <section className='section-center'>

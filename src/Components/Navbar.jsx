@@ -1,12 +1,38 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { useState, useContext } from "react";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
 import { UserContext } from "../Context/UserContext";
 
 const Navbar = () => {
   const { isAuthenticated, user: userAtuh0, logout } = useAuth0();
 
   const { user, setUser } = useContext(UserContext);
+  const { username, isAuthentic } = user;
+
+  const logoutUser = async () => {
+    if (user.signedInWithGoogle) {
+      logout();
+    }
+
+    try {
+      const resp = await fetch("/api/v1/user/signout", {
+        method: "get",
+      });
+
+      console.log(resp);
+
+      setUser({
+        userId: null,
+        username: null,
+        isAuthentic: false,
+        signedInWithGoogle: false,
+      });
+
+      if (!resp.ok) return console.log("Error Logging out");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <nav className='navbar bg-neutral text-zinc-300'>
@@ -20,7 +46,7 @@ const Navbar = () => {
           <li>
             <Link to={"/"}>Search Products</Link>
           </li>
-          {isAuthenticated && (
+          {isAuthentic && (
             <li>
               <Link to={"/user/favourites"}>Favourites Page</Link>
             </li>
@@ -28,10 +54,10 @@ const Navbar = () => {
         </ul>
       </div>
       <div className='navbar-end'>
-        {isAuthenticated ? (
+        {isAuthentic ? (
           <div className='dropdown dropdown-end'>
             <div tabIndex={0} role='button' className='btn m-1'>
-              <span>Hey, Change{user?.given_name} </span>
+              <span>Hey, {user?.username} </span>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 height='18'
@@ -51,7 +77,7 @@ const Navbar = () => {
                 </Link>
               </li>
               <li className='link-accent'>
-                <a onClick={() => logout()}>Logout</a>
+                <a onClick={logoutUser}>Logout</a>
               </li>
             </ul>
           </div>
