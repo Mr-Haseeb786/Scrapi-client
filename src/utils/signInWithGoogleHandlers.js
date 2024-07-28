@@ -7,6 +7,7 @@ export const registerUserWithGoogle = async (
   setError
 ) => {
   try {
+    console.log("Trying to register user");
     const resp = await fetch("/api/v1/user", {
       method: "post",
       headers: {

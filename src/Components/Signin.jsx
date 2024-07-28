@@ -31,7 +31,11 @@ const Signin = () => {
         const { given_name, email, sub } = userInfoAuth0;
         const credId = sub.split("|")[1];
 
-        const status = await signInUserWithGoogle();
+        console.log(credId);
+
+        const status = await signInUserWithGoogle(email, credId, setUser);
+
+        console.log(status);
 
         if (status === 401) {
           registerUserWithGoogle(
@@ -42,11 +46,14 @@ const Signin = () => {
             logout,
             setError
           );
-          const status = await signInUserWithGoogle();
+          const status = await signInUserWithGoogle(email, credId, setUser);
           if (status != 200) {
             return console.log("Mehrbani ustad");
           }
+
+          navigate("/");
         }
+        navigate("/");
       }
     };
 
